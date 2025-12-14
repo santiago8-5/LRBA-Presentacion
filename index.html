@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LRBA en Ether — Presentación interactiva</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Reveal.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+
+  <!-- Custom -->
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <span class="title">LRBA · Ether</span>
+      <span class="badge">Interactive deck</span>
+    </div>
+    <div class="topbar-right">
+      <button class="ghost" id="btn-outline" title="Modo lectura">Outline</button>
+      <button class="ghost" id="btn-help" title="Ayuda">Controles</button>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 1 -->
+      <section data-background-gradient="radial-gradient(circle at 20% 10%, rgba(64,122,255,.35), transparent 55%), radial-gradient(circle at 70% 40%, rgba(0,255,204,.18), transparent 55%), linear-gradient(135deg, #061526, #040b14 60%, #00040a)">
+        <div class="hero">
+          <div class="kicker">Presentación técnica</div>
+          <h1>LRBA <span class="muted">— Lightweight Runtime Architecture for Batch</span></h1>
+          <p class="lead">
+            Cómo se ubica en <b>Ether</b>, cómo se diseña un <b>Job Spark</b> (Builder/Transformer),
+            su <b>ciclo de vida</b>, persistencias (BTS/DB), seguridad, operación y buenas prácticas.
+          </p>
+
+          <div class="hero-cards">
+            <div class="mini-card">
+              <div class="mini-title"><i class="ph ph-lightning"></i> Objetivo</div>
+              <div class="mini-body">Explicar LRBA “end‑to‑end” para una exposición de ~20 min.</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-title"><i class="ph ph-stack"></i> Enfoque</div>
+              <div class="mini-body">Arquitectura Ether + LRBA Spark + Operación (scheduler/monitoreo).</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-title"><i class="ph ph-code"></i> Formato</div>
+              <div class="mini-body">Slides, diagramas Mermaid, toggles “+info”, mini‑quiz.</div>
+            </div>
+          </div>
+
+          <div class="footer-hint">
+            <span>⬅️➡️ navegar · ⬆️⬇️ profundidad · <kbd>F</kbd> fullscreen · <kbd>S</kbd> speaker notes</span>
+          </div>
+        </div>
+        <aside class="notes">
+          Abre con el contexto: LRBA es el runtime de Ether para batch. Explica que veremos arquitectura,
+          ciclo de vida, componentes, persistencias y operación.
+        </aside>
+      </section>
+
+      <!-- 2 -->
+      <section>
+        <h2>Agenda (ruta de 20 minutos)</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-map-trifold"></i> Macro</div>
+            <ol class="compact">
+              <li>Qué es LRBA y por qué existe</li>
+              <li>Ether: capas y jerarquía</li>
+              <li>Tipos: LRBA Spark vs Lite</li>
+              <li>Componentes: Builder/Transformer</li>
+              <li>Ciclo de vida y DAG</li>
+            </ol>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ph ph-gear-six"></i> Operación</div>
+            <ol class="compact" start="6">
+              <li>Persistencias: BTS, DB2/Oracle, Mongo/Elastic</li>
+              <li>Seguridad, alias y servicios</li>
+              <li>Scaffold/estructura de proyecto</li>
+              <li>Buenas prácticas / antipatrónes</li>
+              <li>Mini‑quiz + cierre</li>
+            </ol>
+          </div>
+        </div>
+        <aside class="notes">
+          Marca tiempo aproximado: 2 min contexto, 3 min arquitectura, 5 min componentes,
+          5 min ciclo vida+Spark, 3 min persistencias+seguridad, 2 min buenas prácticas+quiz.
+        </aside>
+      </section>
+
+      <!-- 3 -->
+      <section>
+        <h2>¿Qué es LRBA?</h2>
+        <div class="callout">
+          <div class="callout-title">Definición</div>
+          <p>
+            <b>LRBA</b> (Lightweight Runtime Architecture for Batch) es un <b>runtime en Ether</b> para implementar
+            procesos <b>batch</b> que complementa motores existentes (ej. APX Batch).
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-cube"></i> Principio</div>
+            <p>Corre sobre <b>IaaS Nextgen (x86)</b> y <b>PaaS de contenedores</b>.</p>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ph ph-rocket"></i> Ligereza</div>
+            <p>Modelo de ejecución ligero apoyado en frameworks open‑source (Spark).</p>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ph ph-shield-check"></i> Gobierno</div>
+            <p>Seguridad, monitorización, control de errores y trazabilidad integrados.</p>
+          </div>
+        </div>
+
+        <details class="more">
+          <summary>+info · ¿por qué “runtime” y no solo librería?</summary>
+          <p>
+            Porque LRBA define el <b>flujo de ejecución</b>, integra <b>scheduler</b>, <b>monitoreo</b>,
+            acceso a persistencias y seguridad. Tu código aporta la lógica (Transformer) y la configuración (Builder).
+          </p>
+        </details>
+        <aside class="notes">
+          Enfatiza: runtime = entorno + fases + integración plataforma. No es “un jar”.
+        </aside>
+      </section>
+
+      <!-- 4 -->
+      <section>
+        <h2>¿Qué es un runtime en este contexto?</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-stack"></i> Lo que incluye</div>
+            <ul class="compact">
+              <li>Spark administrado (en LRBA Spark)</li>
+              <li>Contenedores + orquestación (PaaS)</li>
+              <li>Seguridad y descubrimiento de recursos</li>
+              <li>Configuración estándar y parametrización</li>
+              <li>Scheduler + monitorización</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-target"></i> Tu responsabilidad</div>
+            <ul class="compact">
+              <li>Declarar fuentes y destinos (Builder)</li>
+              <li>Transformar datos (Transformer / SQL)</li>
+              <li>Respetar alias, reglas y buenas prácticas</li>
+            </ul>
+            <div class="pill-row">
+              <span class="pill">Builder = config</span>
+              <span class="pill">Transformer = negocio</span>
+              <span class="pill">LRBA = ejecución</span>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Explica “separación de responsabilidades”: plataforma vs app.
+        </aside>
+      </section>
+
+      <!-- 5 -->
+      <section>
+        <h2>Ether: visión por capas</h2>
+        <div class="mermaid">
+flowchart TB
+  A[Aplicaciones<br/>(Jobs LRBA, APX, etc.)]:::top
+  B[Motores / Runtimes<br/>LRBA, APX, DataX...]:::mid
+  C[PaaS de Contenedores<br/>Orquestación · Escalamiento]:::mid
+  D[IaaS Nextgen (x86)<br/>Infraestructura base]:::bot
+
+  D --> C --> B --> A
+
+  classDef top fill=#0b1b33,stroke=#3ea6ff,stroke-width=2,color=#eaf2ff;
+  classDef mid fill=#071427,stroke=#2dd4bf,stroke-width=2,color=#eaf2ff;
+  classDef bot fill=#040b14,stroke=#94a3b8,stroke-width=2,color=#eaf2ff;
+        </div>
+        <details class="more">
+          <summary>+info · Qué aporta Ether además de “infra”</summary>
+          <ul class="compact">
+            <li>Servicios corporativos: seguridad, inventario lógico de servicios, permisos.</li>
+            <li>Persistencias y conectores (BTS, BD, NoSQL).</li>
+            <li>Operación: scheduler (Cronos/Control‑M) y monitoreo (Atenea).</li>
+          </ul>
+        </details>
+        <aside class="notes">
+          Presenta Ether como la “plataforma macro”. LRBA vive encima del PaaS.
+        </aside>
+      </section>
+
+      <!-- 6 -->
+      <section>
+        <h2>Jerarquía: Ether → LRBA → Jobs</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-tree-structure"></i> Jerarquía conceptual</div>
+            <div class="mermaid">
+graph TD
+  E[ETHER (plataforma)] --> I[IaaS + PaaS]
+  E --> S[Servicios: seguridad · BTS · BD · monitoreo · scheduler]
+  E --> M[Motores]
+  M --> L[LRBA (Spark / Lite / Batch)]
+  M --> A[APX y otros]
+  L --> J[Tus Jobs LRBA<br/>Builder + Transformer]
+            </div>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-info"></i> Mensaje clave</div>
+            <p>
+              Un Job LRBA <b>no vive aislado</b>: corre dentro del runtime de Ether, y por eso
+              hereda seguridad, conectividad y operación estándar.
+            </p>
+            <div class="quote">
+              “Tu código describe y transforma; la plataforma orquesta y gobierna.”
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 -->
+      <section>
+        <h2>Tipos de LRBA</h2>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-database"></i> LRBA Spark</div>
+            <ul class="compact">
+              <li>Para <b>grandes datasets</b></li>
+              <li>Procesamiento paralelo y en memoria</li>
+              <li>ETL con SQL o Spark API (Datasets)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ph ph-feather"></i> LRBA Lite</div>
+            <ul class="compact">
+              <li>Más simple / liviano</li>
+              <li>Casos menos volumétricos</li>
+              <li>Complementa necesidades batch</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-puzzle-piece"></i> Relación con otros motores</div>
+            <p>LRBA complementa motores existentes de Ether (ej. APX Batch).</p>
+            <details class="mini">
+              <summary>+info · ¿qué gana Spark?</summary>
+              <p>Escalabilidad, paralelismo, memoria y DAG optimizado.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 -->
+      <section>
+        <h2>Mapa mental: LRBA Spark (qué toca)</h2>
+        <div class="mermaid">
+mindmap
+  root((LRBA Spark))
+    Arquitectura
+      Ether
+      IaaS Nextgen
+      PaaS Contenedores
+      Servicios
+        Seguridad
+        Scheduler
+        Monitoreo
+    Desarrollo
+      JobSparkBuilder
+        registerSources
+        registerTransform
+        registerTargets
+      Transformer
+        Datasets
+        SQL o Spark API
+      Aliases
+    Ejecución
+      Fases
+        Setup
+        Prepare Read
+        Prepare Transformation
+        Prepare Write
+        Execute
+      DAG
+    Persistencias
+      BTS (S3)
+      Relacionales
+        DB2
+        Oracle
+      NoSQL
+        MongoDB
+        ElasticSearch
+        </div>
+        <aside class="notes">
+          Este slide te ayuda a “enganchar” al público: muestra todo lo que se va a cubrir.
+        </aside>
+      </section>
+
+      <!-- 9 -->
+      <section>
+        <h2>Componentes de un Job LRBA Spark</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-code"></i> Dos clases Java principales</div>
+            <ul class="compact">
+              <li><code>JobSparkBuilder</code> — declara sources/targets y usa el Transformer.</li>
+              <li><code>Transformer</code> — implementa la lógica de negocio / transformación.</li>
+            </ul>
+            <details class="mini">
+              <summary>+info · qué significa “abstraer persistencia”</summary>
+              <p>
+                El Builder declara <i>qué</i> leer/escribir y con qué alias; la ubicación física (tabla/archivo)
+                se resuelve por configuración y servicios.
+              </p>
+            </details>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-shapes"></i> Otros elementos</div>
+            <ul class="compact">
+              <li>Aliases (lógicos)</li>
+              <li>Sources / Targets (conectores)</li>
+              <li>Componentes globales (utils, validadores, modelos)</li>
+            </ul>
+            <div class="pill-row">
+              <span class="pill">Alias</span>
+              <span class="pill">physicalName</span>
+              <span class="pill">serviceName</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10 -->
+      <section>
+        <h2>El Builder: responsabilidades</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-wrench"></i> Builder = configuración</div>
+            <ul class="compact">
+              <li>Registra fuentes y destinos del job.</li>
+              <li>Declara cómo se transforman los datos (Transformer Java o SQL).</li>
+              <li>Se ejecuta “lazy” cuando la fase lo requiere.</li>
+            </ul>
+            <details class="mini">
+              <summary>+info · Campos comunes en builders</summary>
+              <ul class="compact">
+                <li><b>alias</b>: nombre lógico usado por Transformers</li>
+                <li><b>physicalName</b>: tabla/colección o ruta de archivo</li>
+                <li><b>serviceName</b>: servicio creado en inventario lógico</li>
+              </ul>
+            </details>
+          </div>
+
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-terminal-window"></i> Mini‑snippet (conceptual)</div>
+            <pre><code class="language-java">// Job[NAME]Builder (conceptual)
+registerSources()  { /* alias + physicalName + serviceName */ }
+registerTransform(){ /* Transformer Java o SQL */ }
+registerTargets()  { /* targets con alias */ }</code></pre>
+            <p class="muted small">El Builder describe. La ejecución ocurre en fases del runtime.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11 -->
+      <section>
+        <h2>Sources y Targets soportados</h2>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-folder"></i> Archivos</div>
+            <ul class="compact">
+              <li>BTS</li>
+              <li>Epsilon (deprecado)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ph ph-database"></i> Relacionales</div>
+            <ul class="compact">
+              <li>Oracle</li>
+              <li>DB2</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ph ph-cloud"></i> NoSQL</div>
+            <ul class="compact">
+              <li>MongoDB</li>
+              <li>ElasticSearch</li>
+            </ul>
+          </div>
+        </div>
+
+        <details class="more">
+          <summary>+info · Targets adicionales</summary>
+          <p>Además de lo anterior, también puede existir destino tipo <code>SparkApiConnector</code>.</p>
+        </details>
+      </section>
+
+      <!-- 12 -->
+      <section>
+        <h2>registerTransform: Java o SQL</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-code-block"></i> Transformer Java</div>
+            <p>Cuando la lógica es más compleja: joins, reglas, validaciones, derivaciones, etc.</p>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-file-sql"></i> Transformer SQL (ETL)</div>
+            <pre><code class="language-java">TransformConfig.SqlStatements.builder()
+  .addSql("sourceAlias1", "TRANSFORM DATA SQL")
+  .build();</code></pre>
+            <p class="muted small">Si usas solo SQL, el Transformer Java puede eliminarse.</p>
+          </div>
+        </div>
+
+        <details class="more">
+          <summary>+info · ¿Cuándo puede retornar null?</summary>
+          <p>
+            Si el job es una copia directa origen→destino (1 source y 1 target) y ambos usan el mismo alias.
+          </p>
+        </details>
+      </section>
+
+      <!-- 13 -->
+      <section>
+        <h2>Transformer: contrato mental</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-arrows-left-right"></i> Entrada / salida por alias</div>
+            <pre><code class="language-java">Map&lt;String, Dataset&lt;Row&gt;&gt; transform(
+  Map&lt;String, Dataset&lt;Row&gt;&gt; datasetsFromRead
+)</code></pre>
+            <ul class="compact">
+              <li>Entrada: <code>sourceAlias → Dataset</code></li>
+              <li>Salida: <code>targetAlias → Dataset</code></li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-graph"></i> Aquí nace el DAG</div>
+            <p>
+              Al encadenar operaciones (select/filter/join/groupBy), Spark construye el
+              <b>plan de ejecución (DAG)</b> que se dispara en <b>Execute</b>.
+            </p>
+            <details class="mini">
+              <summary>+info · “solo una fase”</summary>
+              <p>La fase de transformación es la única donde accedes al Dataset ya cargado en memoria.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 14 -->
+      <section>
+        <h2>Datasets en LRBA Spark</h2>
+        <div class="callout">
+          <div class="callout-title">Dataset</div>
+          <p>
+            Un <b>dataset</b> es una colección de datos <b>distribuidos</b>, con estructura, residente en memoria del proceso Spark.
+            En LRBA Spark siempre se accede y transforma a través de <b>Datasets</b>.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-bezier-curve"></i> Transformaciones</div>
+            <ul class="compact">
+              <li>Declarativas: <code>select</code>, <code>withColumn</code>, <code>join</code>, <code>groupBy</code></li>
+              <li>Spark optimiza el plan antes de ejecutar</li>
+              <li>Evitar loops con acciones sobre datasets</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-warning"></i> Nota importante</div>
+            <p>Algunos métodos del API de Dataset no están permitidos en LRBA.</p>
+            <p class="muted small">Regla general: respeta el “subset” soportado por la plataforma.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 15 -->
+      <section>
+        <h2>DAG (Directed Acyclic Graph) — de la idea a la ejecución</h2>
+        <div class="mermaid">
+flowchart LR
+  R[Read<br/>Sources] --> T[Transform<br/>Dataset ops]
+  T --> W[Write<br/>Targets]
+  subgraph SparkPlan["Spark plan (DAG)"]
+    R --> T --> W
+  end
+        </div>
+        <div class="grid-3">
+          <div class="card"><div class="card-title"><i class="ph ph-cpu"></i> Stages</div><p>Divide el trabajo en etapas.</p></div>
+          <div class="card"><div class="card-title"><i class="ph ph-swap"></i> Shuffles</div><p>Joins/agregaciones implican redistribución.</p></div>
+          <div class="card"><div class="card-title"><i class="ph ph-gauge"></i> Optimización</div><p>Reduce pasos y costos.</p></div>
+        </div>
+      </section>
+
+      <!-- 16 -->
+      <section>
+        <h2>Ciclo de vida LRBA Spark (5 fases)</h2>
+        <div class="mermaid">
+flowchart LR
+  A[1 · Setup] --> B[2 · Prepare Read]
+  B --> C[3 · Prepare Transformation]
+  C --> D[4 · Prepare Write]
+  D --> E[5 · Execute]
+        </div>
+
+        <details class="more">
+          <summary>+info · ¿qué pasa en cada fase?</summary>
+          <ul class="compact">
+            <li><b>Setup</b>: configura el ecosistema Spark (implementado por la arquitectura).</li>
+            <li><b>Prepare Read</b>: prepara accesos y vincula sources con alias.</li>
+            <li><b>Prepare Transformation</b>: prepara el plan (DAG) y ejecuta el Transformer.</li>
+            <li><b>Prepare Write</b>: valida salidas y accesos; vincula targets con persistencia.</li>
+            <li><b>Execute</b>: Spark ejecuta el DAG preparado.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- 17 -->
+      <section>
+        <h2>Builder “lazy” y ApplicationContext</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-hourglass-low"></i> Lazy execution</div>
+            <p>
+              Los métodos <code>registerSources()</code>, <code>registerTransform()</code> y <code>registerTargets()</code> se ejecutan
+              de forma <b>lazy</b> cuando la fase lo requiere.
+            </p>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-puzzle-piece"></i> ¿Por qué importa?</div>
+            <p>
+              Puedes usar información de fases anteriores (vía <b>ApplicationContext</b>) para parametrizar
+              cosas como un <b>nombre de archivo dinámico</b>.
+            </p>
+            <details class="mini">
+              <summary>Ejemplo conceptual</summary>
+              <p>Construir <code>physicalName</code> con <code>${oDate}</code> u otra fecha de ejecución.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 18 -->
+      <section>
+        <h2>Parametrización: InputParams vs lrbaProperties</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-sliders"></i> InputParams (runtime)</div>
+            <ul class="compact">
+              <li>Parámetros que varían por ejecución (enviados desde Control‑M/Cronos)</li>
+              <li>Ej.: fecha de ejecución (<code>executionDate/oDate</code>), nombres de archivos (<code>physicalName</code>)</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-gear"></i> lrbaProperties (semi‑permanentes)</div>
+            <ul class="compact">
+              <li>Configuraciones que cambian poco o dependen del despliegue</li>
+              <li>Ej.: UA, país, <code>serviceName</code> (BTS), URLs por entorno</li>
+            </ul>
+          </div>
+        </div>
+        <aside class="notes">
+          Esto ayuda mucho en entrevista: diferencia “params de ejecución” vs “config de despliegue”.
+        </aside>
+      </section>
+
+      <!-- 19 -->
+      <section>
+        <h2>Persistencias: BTS (S3 interno)</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-cloud-arrow-up"></i> Qué es BTS</div>
+            <p>
+              <b>Bucket Temporary Storage</b> soporta almacenamiento de objetos compatible con S3
+              y cubre la necesidad de almacenamiento <b>temporal</b> (archivos intermedios entre jobs).
+            </p>
+            <div class="pill-row">
+              <span class="pill">S3 API</span>
+              <span class="pill">multi‑tenancy</span>
+              <span class="pill">alto rendimiento</span>
+            </div>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-hard-drives"></i> Base tecnológica</div>
+            <p>
+              Se apoya en IaaS Storage con tecnología <b>Scality Ring</b> / conector S3.
+            </p>
+            <details class="mini">
+              <summary>Uso principal</summary>
+              <p>Intercambio de datos entre procesos (no como persistencia final).</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 20 -->
+      <section>
+        <h2>Persistencias: Bases de datos relacionales</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-database"></i> Soportadas</div>
+            <ul class="compact">
+              <li>DB2 en Mainframe</li>
+              <li>Oracle Nextgen</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-arrow-u-up-right"></i> Usos principales</div>
+            <ul class="compact">
+              <li>Extracciones completas o incrementales (SQL simple por timestamp)</li>
+              <li>Preservar recursos de BD transaccionales moviendo a BTS</li>
+              <li>Carga <b>upsert</b> (insert/update)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 21 -->
+      <section>
+        <h2>Persistencias: NoSQL</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-brackets-curly"></i> Soportadas</div>
+            <ul class="compact">
+              <li>MongoDB Nextgen</li>
+              <li>ElasticSearch Nextgen</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-trend-up"></i> Uso típico</div>
+            <p>Cargar datos provenientes de otras bases de datos / consolidación.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 22 -->
+      <section>
+        <h2>Seguridad: alias + servicios (sin credenciales en código)</h2>
+        <div class="callout">
+          <div class="callout-title">Idea</div>
+          <p>
+            La conexión a la ubicación física de los datos (descubrimiento, seguridad, permisos) se gestiona por la arquitectura.
+            Cada source/target tiene un <b>alias LRBA</b> y el acceso se resuelve con <b>serviceName</b> (inventario lógico).
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-tag"></i> alias</div>
+            <p>Nombre lógico usado por Transformers.</p>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ph ph-file-text"></i> physicalName</div>
+            <p>Tabla/colección o archivo físico.</p>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ph ph-link-simple"></i> serviceName</div>
+            <p>Servicio registrado (inventario lógico).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 23 -->
+      <section>
+        <h2>Scaffold y estructura de proyecto</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-wand"></i> Scaffold (generación)</div>
+            <p>
+              Se puede generar un job básico desde la consola de Ether (Add resource),
+              creando repositorio y base de proyecto.
+            </p>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-folders"></i> Paquete estándar</div>
+            <p class="mono">com.bbva.[UUAA].[COUNTRY].jsprk.[JOBNAME].v[JOBVERSION]</p>
+            <ul class="compact">
+              <li><code>Job[JOBNAME]Builder.java</code></li>
+              <li><code>Transformer.java</code> (si no es SQL‑only)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 24 -->
+      <section>
+        <h2>Convenciones y reglas (builder)</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-check-circle"></i> Reglas clave</div>
+            <ul class="compact">
+              <li>Implementar <code>registerSources()</code>, <code>registerTransform()</code>, <code>registerTargets()</code></li>
+              <li>Debe existir al menos <b>un origen</b> y <b>un objetivo</b> registrado</li>
+              <li>La info “runtime” llega vía <b>InputParams</b> o <b>LRBAProperties</b></li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-lightbulb"></i> Tip práctico</div>
+            <p>
+              No declares más sources/targets de los que usarás.
+              Si necesitas alternar objetivos, usa <b>if</b> dentro de los métodos register.
+            </p>
+            <details class="mini">
+              <summary>+info · copia directa</summary>
+              <p>Si configuras bien source/target, <code>registerTransform()</code> puede retornar null para descarga directa.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- 25 -->
+      <section>
+        <h2>Antipatrón: loops sobre acciones del Dataset</h2>
+        <div class="grid-2">
+          <div class="card danger">
+            <div class="card-title"><i class="ph ph-warning-octagon"></i> Antipatrón</div>
+            <p>Usar ciclos con acciones del dataset (ej. renombrar columnas en loop).</p>
+            <p class="muted small">Spark no conoce el número de invocaciones hasta runtime → dificulta optimización.</p>
+          </div>
+          <div class="card ok">
+            <div class="card-title"><i class="ph ph-check-square-offset"></i> Solución</div>
+            <ul class="compact">
+              <li>Usa <code>.select()</code> para seleccionar y renombrar columnas en un paso</li>
+              <li>O <code>withColumns()</code> para crear/alterar columnas con una sola llamada</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 26 -->
+      <section>
+        <h2>Antipatrón: “un dataset por operación”</h2>
+        <div class="grid-2">
+          <div class="card danger">
+            <div class="card-title"><i class="ph ph-bug"></i> Problema</div>
+            <p>
+              Guardar cada acción en una nueva variable puede multiplicar el uso de memoria
+              (ej. 13 datasets temporales de 800MB).
+            </p>
+          </div>
+          <div class="card ok">
+            <div class="card-title"><i class="ph ph-leaf"></i> Enfoque recomendado</div>
+            <ul class="compact">
+              <li>Planear transformaciones primero (estructura Java/Scala)</li>
+              <li>Aplicar la operación en una sola acción del Dataset</li>
+              <li>Menos datasets intermedios → menos presión de memoria</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 27 -->
+      <section>
+        <h2>Herramientas útiles (en código)</h2>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-toolbox"></i> DatasetUtils</div>
+            <ul class="compact">
+              <li>Crear Datasets</li>
+              <li>Registrar UDF</li>
+              <li>Agregar/eliminar cache</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ph ph-function"></i> UDF</div>
+            <p>Funciones personalizadas para Spark SQL cuando la lógica se vuelve compleja.</p>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-folder-open"></i> Organización de archivos</div>
+            <p>Ordenar entradas/salidas por contexto funcional, tabla y fecha (<code>oDate</code>).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 28 -->
+      <section>
+        <h2>Nomenclatura sugerida de Jobs</h2>
+        <div class="callout">
+          <div class="callout-title">Formato</div>
+          <p class="mono">{UUAA}-{COUNTRY}-JSPRK-{SOURCE_FORMAT | TARGET_SCOPE | SOURCE_ACTION}_{RESULT | INPUT}-V{VERSION}</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-tag"></i> Catálogo (ejemplos)</div>
+            <ul class="compact">
+              <li><b>SOURCE_FORMAT</b>: CSV, DB2, ORA, PGQ, MNG, ELS…</li>
+              <li><b>TARGET_SCOPE</b>: LCL, GBL</li>
+              <li><b>SOURCE_ACTION</b>: VLD, INS, DEL, UPD, JOI, UNI…</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-note"></i> Ejemplos</div>
+            <ul class="compact mono">
+              <li>MBGD-MX-JSPRK-DB2_BGDTUMO-V00</li>
+              <li>MBGD-MX-JSPRK-CSV_BGDTUMO-V00</li>
+              <li>MBGD-MX-JSPRK-LCL_ACCOUNT_MOV-V00</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 29 -->
+      <section>
+        <h2>Diseño de procesos: “Divide y vencerás”</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-scissors"></i> Funcionalidades atómicas</div>
+            <ul class="compact">
+              <li>Formato de archivo</li>
+              <li>Unión de datasets</li>
+              <li>Transformación</li>
+              <li>Validaciones</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-clock"></i> Por qué</div>
+            <ul class="compact">
+              <li>Reprocesamiento más barato (reiniciar 30 min vs 4 horas)</li>
+              <li>Mantenimiento más fácil</li>
+              <li>Pruebas más rápidas</li>
+              <li>Reutilización de pasos</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- 29b -->
+      <section>
+        <h2>Operación: Scheduler (Cronos vs Control‑M)</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-calendar"></i> Cronos (no‑prod)</div>
+            <ul class="compact">
+              <li>Gestión y ejecución en ambientes previos</li>
+              <li>Guardas el job → actualiza versión (develop) y queda disponible en Ether</li>
+              <li>En multipaís puedes desplegar la versión desde la consola Ether</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-rocket-launch"></i> Control‑M (prod)</div>
+            <ul class="compact">
+              <li>Orquestación en producción</li>
+              <li>Envía parámetros de ejecución (InputParams)</li>
+              <li>Define calendarios, dependencias, ventanas y reintentos</li>
+            </ul>
+          </div>
+        </div>
+        <aside class="notes">
+          Menciona que InputParams típicamente viene de Control‑M/Cronos.
+        </aside>
+      </section>
+
+      <!-- 29c -->
+      <section>
+        <h2>Monitoreo y troubleshooting (cómo piensas en incidentes)</h2>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-activity"></i> Qué miras</div>
+            <ul class="compact">
+              <li>Duración por fase</li>
+              <li>Errores en Prepare vs Execute</li>
+              <li>Shuffles / skew</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ph ph-magnifying-glass"></i> Pistas</div>
+            <ul class="compact">
+              <li>Alias afectado</li>
+              <li>Target físico (physicalName)</li>
+              <li>Servicio (serviceName)</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-bug-beetle"></i> Errores comunes</div>
+            <ul class="compact">
+              <li>withColumn() excesivo → memoria</li>
+              <li>Loops → Spark no optimiza DAG</li>
+              <li>Datasets intermedios masivos</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 29d -->
+      <section>
+        <h2>Extra: SQL-only ETL (simplificación)</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-file-sql"></i> Caso típico</div>
+            <p>
+              Para ETL simple, puedes usar solo SQL y omitir la clase <code>Transformer</code>.
+            </p>
+            <pre><code class="language-java">TransformConfig.SqlStatements.builder()
+  .addSql("sourceAlias1", "TRANSFORM DATA SQL")
+  .build();</code></pre>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-lightbulb-filament"></i> Tip</div>
+            <p>
+              Útil cuando la transformación es “select + cast + filtros”.
+              Si crece la complejidad, migra a Spark API.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 30 -->
+      <section>
+        <h2>Mini‑quiz (modo entrevista)</h2>
+        <div class="quiz">
+          <div class="quiz-q">1) ¿En qué fase se ejecuta el Transformer?</div>
+          <div class="quiz-a" data-correct="true">Prepare Transformation</div>
+          <div class="quiz-a">Prepare Read</div>
+          <div class="quiz-a">Execute</div>
+          <div class="quiz-q">2) ¿Qué 3 campos comparten los builders de conectores?</div>
+          <div class="quiz-a">owner, region, tenant</div>
+          <div class="quiz-a" data-correct="true">alias, physicalName, serviceName</div>
+          <div class="quiz-a">table, schema, jdbcUrl</div>
+          <div class="quiz-q">3) ¿Cuál es el uso principal de BTS?</div>
+          <div class="quiz-a" data-correct="true">Intercambio temporal de archivos entre jobs</div>
+          <div class="quiz-a">Persistencia final de datos históricos</div>
+          <div class="quiz-a">Cache de Spark únicamente</div>
+          <div class="quiz-footer">
+            <button class="primary" id="btn-quiz-reset">Reiniciar</button>
+            <span class="muted small" id="quiz-status">Tip: haz click en una respuesta.</span>
+          </div>
+        </div>
+        <aside class="notes">
+          Úsalo al final para evaluar comprensión y sonar “sólido” en entrevista.
+        </aside>
+      </section>
+
+      <!-- 31 -->
+      <section data-background-gradient="radial-gradient(circle at 50% 20%, rgba(46,212,191,.22), transparent 60%), linear-gradient(135deg, #040b14, #061526 70%, #02060c)">
+        <h2>Resumen final</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="ph ph-flag"></i> Mensajes clave</div>
+            <ul class="compact">
+              <li>LRBA es un <b>runtime</b> batch dentro de Ether, pensado para estandarizar ejecución.</li>
+              <li>LRBA Spark usa <b>Apache Spark</b> para paralelismo, escalabilidad y DAG.</li>
+              <li>Job = <b>Builder</b> (config) + <b>Transformer</b> (negocio) + alias.</li>
+              <li>5 fases: Setup → Prepare Read → Prepare Transformation → Prepare Write → Execute.</li>
+              <li>Persistencias: <b>BTS</b> (temporal), DB2/Oracle, Mongo/Elastic.</li>
+            </ul>
+          </div>
+          <div class="card subtle">
+            <div class="card-title"><i class="ph ph-path"></i> Siguientes pasos</div>
+            <ol class="compact">
+              <li>Practicar un job “end‑to‑end” con 1 source + 1 target.</li>
+              <li>Agregar un join + agregación para ver el DAG en logs.</li>
+              <li>Aplicar buenas prácticas (sin loops, sin datasets innecesarios).</li>
+            </ol>
+            <div class="quote">Gracias. Preguntas 👇</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Modal help -->
+  <dialog id="help">
+    <div class="dialog-head">
+      <div class="dialog-title"><i class="ph ph-keyboard"></i> Controles</div>
+      <button class="ghost" id="btn-close">Cerrar</button>
+    </div>
+    <div class="dialog-body">
+      <ul class="compact">
+        <li><b>F</b> fullscreen · <b>S</b> speaker notes</li>
+        <li><b>Esc</b> overview</li>
+        <li><b>Alt + click</b> zoom</li>
+        <li><b>?</b> help (Reveal)</li>
+      </ul>
+      <p class="muted small">
+        Tip: en GitHub Pages funciona igual (todo es estático). Si Mermaid no renderiza, revisa conexión a CDN.
+      </p>
+    </div>
+  </dialog>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
