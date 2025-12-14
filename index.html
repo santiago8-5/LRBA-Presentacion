@@ -1,3 +1,12 @@
+Aquí tienes **TODO tu `index.html` ya corregido** (Mermaid sin errores, mindmaps renderizando, y re-render automático por slide en Reveal). Solo reemplaza tu archivo actual por este:
+
+> ✅ Cambios clave:
+>
+> * Todos los diagramas Mermaid ahora están en `<pre class="mermaid">...</pre>`
+> * Labels con `"<br/>"` van entre comillas `["..."]`
+> * Se agrega script para **render Mermaid en `ready` + `slidechanged`**
+
+```html
 <!doctype html>
 <html lang="es">
 <head>
@@ -50,7 +59,7 @@
           <div class="hero-cards">
             <div class="mini-card">
               <div class="mini-title"><i class="ph ph-lightning"></i> Objetivo</div>
-              <div class="mini-body">Explicar LRBA “end‑to‑end” para una exposición de ~20 min.</div>
+              <div class="mini-body">Explicar LRBA “end-to-end” para una exposición de ~20 min.</div>
             </div>
             <div class="mini-card">
               <div class="mini-title"><i class="ph ph-stack"></i> Enfoque</div>
@@ -58,7 +67,7 @@
             </div>
             <div class="mini-card">
               <div class="mini-title"><i class="ph ph-code"></i> Formato</div>
-              <div class="mini-body">Slides, diagramas Mermaid, toggles “+info”, mini‑quiz.</div>
+              <div class="mini-body">Slides, diagramas Mermaid, toggles “+info”, mini-quiz.</div>
             </div>
           </div>
 
@@ -93,7 +102,7 @@
               <li>Seguridad, alias y servicios</li>
               <li>Scaffold/estructura de proyecto</li>
               <li>Buenas prácticas / antipatrónes</li>
-              <li>Mini‑quiz + cierre</li>
+              <li>Mini-quiz + cierre</li>
             </ol>
           </div>
         </div>
@@ -121,7 +130,7 @@
           </div>
           <div class="card">
             <div class="card-title"><i class="ph ph-rocket"></i> Ligereza</div>
-            <p>Modelo de ejecución ligero apoyado en frameworks open‑source (Spark).</p>
+            <p>Modelo de ejecución ligero apoyado en frameworks open-source (Spark).</p>
           </div>
           <div class="card">
             <div class="card-title"><i class="ph ph-shield-check"></i> Gobierno</div>
@@ -177,25 +186,25 @@
       <!-- 5 -->
       <section>
         <h2>Ether: visión por capas</h2>
-        <div class="mermaid">
+        <pre class="mermaid">
 flowchart TB
-  A[Aplicaciones<br/>(Jobs LRBA, APX, etc.)]:::top
-  B[Motores / Runtimes<br/>LRBA, APX, DataX...]:::mid
-  C[PaaS de Contenedores<br/>Orquestación · Escalamiento]:::mid
-  D[IaaS Nextgen (x86)<br/>Infraestructura base]:::bot
+  A["Aplicaciones<br/>(Jobs LRBA, APX, etc.)"]:::top
+  B["Motores / Runtimes<br/>LRBA, APX, DataX..."]:::mid
+  C["PaaS de Contenedores<br/>Orquestación · Escalamiento"]:::mid
+  D["IaaS Nextgen (x86)<br/>Infraestructura base"]:::bot
 
   D --> C --> B --> A
 
-  classDef top fill=#0b1b33,stroke=#3ea6ff,stroke-width=2,color=#eaf2ff;
-  classDef mid fill=#071427,stroke=#2dd4bf,stroke-width=2,color=#eaf2ff;
-  classDef bot fill=#040b14,stroke=#94a3b8,stroke-width=2,color=#eaf2ff;
-        </div>
+  classDef top fill:#0b1b33,stroke:#3ea6ff,stroke-width:2,color:#eaf2ff;
+  classDef mid fill:#071427,stroke:#2dd4bf,stroke-width:2,color:#eaf2ff;
+  classDef bot fill:#040b14,stroke:#94a3b8,stroke-width:2,color:#eaf2ff;
+        </pre>
         <details class="more">
           <summary>+info · Qué aporta Ether además de “infra”</summary>
           <ul class="compact">
             <li>Servicios corporativos: seguridad, inventario lógico de servicios, permisos.</li>
             <li>Persistencias y conectores (BTS, BD, NoSQL).</li>
-            <li>Operación: scheduler (Cronos/Control‑M) y monitoreo (Atenea).</li>
+            <li>Operación: scheduler (Cronos/Control-M) y monitoreo (Atenea).</li>
           </ul>
         </details>
         <aside class="notes">
@@ -209,15 +218,15 @@ flowchart TB
         <div class="grid-2">
           <div class="card">
             <div class="card-title"><i class="ph ph-tree-structure"></i> Jerarquía conceptual</div>
-            <div class="mermaid">
+            <pre class="mermaid">
 graph TD
-  E[ETHER (plataforma)] --> I[IaaS + PaaS]
-  E --> S[Servicios: seguridad · BTS · BD · monitoreo · scheduler]
-  E --> M[Motores]
-  M --> L[LRBA (Spark / Lite / Batch)]
-  M --> A[APX y otros]
-  L --> J[Tus Jobs LRBA<br/>Builder + Transformer]
-            </div>
+  E["ETHER (plataforma)"] --> I["IaaS + PaaS"]
+  E --> S["Servicios: seguridad · BTS · BD · monitoreo · scheduler"]
+  E --> M["Motores"]
+  M --> L["LRBA (Spark / Lite / Batch)"]
+  M --> A["APX y otros"]
+  L --> J["Tus Jobs LRBA<br/>Builder + Transformer"]
+            </pre>
           </div>
           <div class="card subtle">
             <div class="card-title"><i class="ph ph-info"></i> Mensaje clave</div>
@@ -266,7 +275,7 @@ graph TD
       <!-- 8 -->
       <section>
         <h2>Mapa mental: LRBA Spark (qué toca)</h2>
-        <div class="mermaid">
+        <pre class="mermaid">
 mindmap
   root((LRBA Spark))
     Arquitectura
@@ -302,7 +311,7 @@ mindmap
       NoSQL
         MongoDB
         ElasticSearch
-        </div>
+        </pre>
         <aside class="notes">
           Este slide te ayuda a “enganchar” al público: muestra todo lo que se va a cubrir.
         </aside>
@@ -364,7 +373,7 @@ mindmap
           </div>
 
           <div class="card subtle">
-            <div class="card-title"><i class="ph ph-terminal-window"></i> Mini‑snippet (conceptual)</div>
+            <div class="card-title"><i class="ph ph-terminal-window"></i> Mini-snippet (conceptual)</div>
             <pre><code class="language-java">// Job[NAME]Builder (conceptual)
 registerSources()  { /* alias + physicalName + serviceName */ }
 registerTransform(){ /* Transformer Java o SQL */ }
@@ -491,14 +500,14 @@ registerTargets()  { /* targets con alias */ }</code></pre>
       <!-- 15 -->
       <section>
         <h2>DAG (Directed Acyclic Graph) — de la idea a la ejecución</h2>
-        <div class="mermaid">
+        <pre class="mermaid">
 flowchart LR
-  R[Read<br/>Sources] --> T[Transform<br/>Dataset ops]
-  T --> W[Write<br/>Targets]
+  R["Read<br/>Sources"] --> T["Transform<br/>Dataset ops"]
+  T --> W["Write<br/>Targets"]
   subgraph SparkPlan["Spark plan (DAG)"]
     R --> T --> W
   end
-        </div>
+        </pre>
         <div class="grid-3">
           <div class="card"><div class="card-title"><i class="ph ph-cpu"></i> Stages</div><p>Divide el trabajo en etapas.</p></div>
           <div class="card"><div class="card-title"><i class="ph ph-swap"></i> Shuffles</div><p>Joins/agregaciones implican redistribución.</p></div>
@@ -509,13 +518,13 @@ flowchart LR
       <!-- 16 -->
       <section>
         <h2>Ciclo de vida LRBA Spark (5 fases)</h2>
-        <div class="mermaid">
+        <pre class="mermaid">
 flowchart LR
-  A[1 · Setup] --> B[2 · Prepare Read]
-  B --> C[3 · Prepare Transformation]
-  C --> D[4 · Prepare Write]
-  D --> E[5 · Execute]
-        </div>
+  A["1 · Setup"] --> B["2 · Prepare Read"]
+  B --> C["3 · Prepare Transformation"]
+  C --> D["4 · Prepare Write"]
+  D --> E["5 · Execute"]
+        </pre>
 
         <details class="more">
           <summary>+info · ¿qué pasa en cada fase?</summary>
@@ -561,12 +570,12 @@ flowchart LR
           <div class="card">
             <div class="card-title"><i class="ph ph-sliders"></i> InputParams (runtime)</div>
             <ul class="compact">
-              <li>Parámetros que varían por ejecución (enviados desde Control‑M/Cronos)</li>
+              <li>Parámetros que varían por ejecución (enviados desde Control-M/Cronos)</li>
               <li>Ej.: fecha de ejecución (<code>executionDate/oDate</code>), nombres de archivos (<code>physicalName</code>)</li>
             </ul>
           </div>
           <div class="card subtle">
-            <div class="card-title"><i class="ph ph-gear"></i> lrbaProperties (semi‑permanentes)</div>
+            <div class="card-title"><i class="ph ph-gear"></i> lrbaProperties (semi-permanentes)</div>
             <ul class="compact">
               <li>Configuraciones que cambian poco o dependen del despliegue</li>
               <li>Ej.: UA, país, <code>serviceName</code> (BTS), URLs por entorno</li>
@@ -590,7 +599,7 @@ flowchart LR
             </p>
             <div class="pill-row">
               <span class="pill">S3 API</span>
-              <span class="pill">multi‑tenancy</span>
+              <span class="pill">multi-tenancy</span>
               <span class="pill">alto rendimiento</span>
             </div>
           </div>
@@ -690,7 +699,7 @@ flowchart LR
             <p class="mono">com.bbva.[UUAA].[COUNTRY].jsprk.[JOBNAME].v[JOBVERSION]</p>
             <ul class="compact">
               <li><code>Job[JOBNAME]Builder.java</code></li>
-              <li><code>Transformer.java</code> (si no es SQL‑only)</li>
+              <li><code>Transformer.java</code> (si no es SQL-only)</li>
             </ul>
           </div>
         </div>
@@ -839,13 +848,12 @@ flowchart LR
         </div>
       </section>
 
-
       <!-- 29b -->
       <section>
-        <h2>Operación: Scheduler (Cronos vs Control‑M)</h2>
+        <h2>Operación: Scheduler (Cronos vs Control-M)</h2>
         <div class="grid-2">
           <div class="card">
-            <div class="card-title"><i class="ph ph-calendar"></i> Cronos (no‑prod)</div>
+            <div class="card-title"><i class="ph ph-calendar"></i> Cronos (no-prod)</div>
             <ul class="compact">
               <li>Gestión y ejecución en ambientes previos</li>
               <li>Guardas el job → actualiza versión (develop) y queda disponible en Ether</li>
@@ -853,7 +861,7 @@ flowchart LR
             </ul>
           </div>
           <div class="card subtle">
-            <div class="card-title"><i class="ph ph-rocket-launch"></i> Control‑M (prod)</div>
+            <div class="card-title"><i class="ph ph-rocket-launch"></i> Control-M (prod)</div>
             <ul class="compact">
               <li>Orquestación en producción</li>
               <li>Envía parámetros de ejecución (InputParams)</li>
@@ -862,7 +870,7 @@ flowchart LR
           </div>
         </div>
         <aside class="notes">
-          Menciona que InputParams típicamente viene de Control‑M/Cronos.
+          Menciona que InputParams típicamente viene de Control-M/Cronos.
         </aside>
       </section>
 
@@ -922,20 +930,23 @@ flowchart LR
 
       <!-- 30 -->
       <section>
-        <h2>Mini‑quiz (modo entrevista)</h2>
+        <h2>Mini-quiz (modo entrevista)</h2>
         <div class="quiz">
           <div class="quiz-q">1) ¿En qué fase se ejecuta el Transformer?</div>
           <div class="quiz-a" data-correct="true">Prepare Transformation</div>
           <div class="quiz-a">Prepare Read</div>
           <div class="quiz-a">Execute</div>
+
           <div class="quiz-q">2) ¿Qué 3 campos comparten los builders de conectores?</div>
           <div class="quiz-a">owner, region, tenant</div>
           <div class="quiz-a" data-correct="true">alias, physicalName, serviceName</div>
           <div class="quiz-a">table, schema, jdbcUrl</div>
+
           <div class="quiz-q">3) ¿Cuál es el uso principal de BTS?</div>
           <div class="quiz-a" data-correct="true">Intercambio temporal de archivos entre jobs</div>
           <div class="quiz-a">Persistencia final de datos históricos</div>
           <div class="quiz-a">Cache de Spark únicamente</div>
+
           <div class="quiz-footer">
             <button class="primary" id="btn-quiz-reset">Reiniciar</button>
             <span class="muted small" id="quiz-status">Tip: haz click en una respuesta.</span>
@@ -963,7 +974,7 @@ flowchart LR
           <div class="card subtle">
             <div class="card-title"><i class="ph ph-path"></i> Siguientes pasos</div>
             <ol class="compact">
-              <li>Practicar un job “end‑to‑end” con 1 source + 1 target.</li>
+              <li>Practicar un job “end-to-end” con 1 source + 1 target.</li>
               <li>Agregar un join + agregación para ver el DAG en logs.</li>
               <li>Aplicar buenas prácticas (sin loops, sin datasets innecesarios).</li>
             </ol>
@@ -1001,5 +1012,41 @@ flowchart LR
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 
   <script src="assets/app.js"></script>
+
+  <!-- Mermaid render fix for Reveal -->
+  <script>
+    // Mermaid: no auto-run; we render on Reveal events
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "dark",
+      securityLevel: "loose",
+      flowchart: { htmlLabels: true },
+      themeVariables: {
+        fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+      }
+    });
+
+    const renderMermaid = async () => {
+      const nodes = document.querySelectorAll("pre.mermaid, .mermaid");
+      nodes.forEach(n => n.removeAttribute("data-processed"));
+      try {
+        await mermaid.run({ querySelector: "pre.mermaid, .mermaid" });
+      } catch (e) {
+        console.warn("Mermaid render error:", e);
+      }
+    };
+
+    // Ensure Reveal exists (app.js should initialize Reveal; this just hooks rendering)
+    if (window.Reveal) {
+      Reveal.on("ready", renderMermaid);
+      Reveal.on("slidechanged", renderMermaid);
+    } else {
+      window.addEventListener("load", renderMermaid);
+    }
+  </script>
 </body>
 </html>
+```
+
+Si aún te falla **solo en GitHub Pages** pero local se ve bien, el siguiente culpable típico es **ruta base** (assets) o que Reveal se inicializa tarde en `assets/app.js`.
+Pégame tu `assets/app.js` y te lo dejo “blindado” para Pages (incluyendo `hash:true`, `history:true`, y render Mermaid sincronizado con `Reveal.initialize()`).
