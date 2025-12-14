@@ -1,12 +1,3 @@
-Aquí tienes **TODO tu `index.html` ya corregido** (Mermaid sin errores, mindmaps renderizando, y re-render automático por slide en Reveal). Solo reemplaza tu archivo actual por este:
-
-> ✅ Cambios clave:
->
-> * Todos los diagramas Mermaid ahora están en `<pre class="mermaid">...</pre>`
-> * Labels con `"<br/>"` van entre comillas `["..."]`
-> * Se agrega script para **render Mermaid en `ready` + `slidechanged`**
-
-```html
 <!doctype html>
 <html lang="es">
 <head>
@@ -1046,7 +1037,3 @@ flowchart LR
   </script>
 </body>
 </html>
-```
-
-Si aún te falla **solo en GitHub Pages** pero local se ve bien, el siguiente culpable típico es **ruta base** (assets) o que Reveal se inicializa tarde en `assets/app.js`.
-Pégame tu `assets/app.js` y te lo dejo “blindado” para Pages (incluyendo `hash:true`, `history:true`, y render Mermaid sincronizado con `Reveal.initialize()`).
